@@ -22,6 +22,8 @@ The analysis explores regional household characteristics, compares household inc
 ```text
 acs-housing-income-analysis/
 ├── data/
+│   └── pums_short.csv.gz
+│   └── PUMS_Data_Dictionary_2018.pdf
 ├── notebooks/
 │   └── acs_housing_income_analysis.ipynb
 ├── src/
