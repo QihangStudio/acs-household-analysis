@@ -25,9 +25,9 @@ acs-housing-income-analysis/
 │   └── pums_short.csv.gz
 │   └── PUMS_Data_Dictionary_2018.pdf
 ├── notebooks/
-│   └── acs_housing_income_analysis.ipynb
+│   └── eda.ipynb
 ├── src/
-│   └── analysis.py
+│   └── eda.py
 ├── figures/
 ├── README.md
 └── requirements.txt
