@@ -7,6 +7,9 @@ This project analyzes household-level demographic, housing, property value, inco
 
 The analysis explores regional household characteristics, compares household income between Michigan and Ohio, and uses simulation to study the sampling distribution of monthly rent estimates.
 
+## Sample Visualization
+![Missing Value Proportion by Variables](figures/01_missing_value_proportion.png)
+![Household Count by State](figures/03_ordered_st_counts.png)
 
 ## Main Features
 
