@@ -13,7 +13,6 @@ The analysis explores regional household characteristics, compares household inc
 - Exploratory analysis of ACS household variables
 - Property value distribution analysis
 - Regional household distribution by Census division
-- Michigan vs Ohio household income comparison
 - Monthly rent simulation with different sample sizes
 - Visualization of sampling distributions
 
