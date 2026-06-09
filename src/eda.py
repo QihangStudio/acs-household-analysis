@@ -1,20 +1,22 @@
 """
+EDA.py
 Exploratory Data Analysis (EDA) on the ACS PUMS dataset
+
 <Qihang Cheng>
 """
 
-# Project Setup
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sb
+import seaborn as sns
 
 
 # Import Dataset
 acs = pd.read_csv("pums_short.csv.gz")
 
 
-# Data Overview
+# ========== Data Overview ==========
 print("===== Dataset Overview =====")
 print(f"Rows: {acs.shape[0]}")
 print(f"Columns: {acs.shape[1]}")
@@ -30,9 +32,10 @@ print()
 print("===== Column Types =====")
 acs.info()
 print()
+# ========== end of Data Overview ==========
 
 
-# Select Variables of Interest
+# ========== Select Variables of Interest ==========
 selected_cols = [
     "DIVISION", "REGION", "ST",
     "HINCP",   # household income
@@ -50,9 +53,10 @@ acs_selected = acs[selected_cols].copy()
 print("===== Selected Columns =====")
 print(acs_selected.head())
 print()
+# ========== end of Variables of Interest ==========
 
 
-# Missing Values Analysis
+# ========== Missing Values Analysis ==========
 missing_summary = (
     acs_selected.isna()
     .mean()
@@ -66,22 +70,47 @@ print("===== Missing Value Summary =====")
 print(missing_summary)
 print()
 
+# Graph for Missing Summary
+order = missing_summary["column"].tolist()
+
+palette = sns.color_palette(
+    "Reds",
+    n_colors=len(missing_summary)
+)[::-1]
+
 plt.figure(figsize=(10, 6))
-sb.barplot(
+
+ax = sns.barplot(
     data=missing_summary,
     x="missing_proportion",
     y="column",
-    color="grey",
+    order=order,
+    hue="column",
+    palette=palette,
+    legend=False
 )
+
 plt.title("Missing Value Proportion by Variable")
 plt.xlabel("Missing Proportion")
 plt.ylabel("Variable")
+
+for i, row in missing_summary.iterrows():
+    value = row["missing_proportion"]
+    ax.text(
+        value + 0.01,
+        i,
+        f"{value:.1%}",
+        va="center"
+    )
+
+plt.xlim(0, missing_summary["missing_proportion"].max() + 0.1)
 plt.tight_layout()
 plt.show()
 print()
+# ========== end of Missing Values Analysis ==========
 
 
-# Division (DIVISION)
+# ========== Division (DIVISION) ==========
 div_name = {
     0: "Puerto Rico",
     1: "New England (Northeast region)",
@@ -100,9 +129,10 @@ acs_selected["DIVISION_name"] = acs_selected["DIVISION"].replace(div_name)
 print("=== Division Name ===")
 print(acs_selected["DIVISION_name"])
 print()
+# ========== end of Division (DIVISION) ==========
 
 
-# Monthly Rent (RNTP)
+# ========== Monthly Rent (RNTP) ==========
 total_rntp = acs_selected["RNTP"].shape[0]
 valid_rntp = acs_selected["RNTP"].count()
 print(f"\"RNTP\" has", total_rntp, "rows in total.")
@@ -119,6 +149,7 @@ print(rntp.describe())
 print(f"range\t", rntp.max()-rntp.min())
 print()
 
+# Graph for RNTP counts
 plt.figure(figsize=(10, 6))
 sb.boxplot(x=rntp)
 plt.title("Distribution of Monthly Rent")
@@ -127,17 +158,56 @@ plt.tight_layout()
 plt.show()
 print()
 
+
 def rntp_proportion(less_than: int) -> None:
     total = rntp.count()
     p = len(rntp.loc[rntp <= less_than]) / total
     print(f"The proportion of the monthly rent that are have less than "
           f"{less_than} is {p: .3f}")
 
+
 rntp_proportion(1000)
 rntp_proportion(2000)
 rntp_proportion(3000)
 print()
 
+# Ordered RNTP
+st_summary = (
+    acs_selected["ST_name"].value_counts()
+    .reset_index()
+)
+
+st_summary.columns = ["state", "count"]
+
+st_summary = st_summary.sort_values("count")
+print(st_summary.head)
+print()
+
+st_palette = sns.color_palette(
+    "Blues",
+    n_colors=len(st_summary)
+)
+
+plt.figure(figsize=(10, 6))
+
+sns.barplot(
+    data=st_summary,
+    x="state",
+    y="count",
+    hue="state",
+    palette=st_palette,
+    legend=False
+)
+
+plt.title("Household Count by State")
+plt.xlabel("State")
+plt.ylabel("Count")
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+print()
+
+# Graph for Distribution of RNTP
 plt.figure(figsize=(10, 6))
 sb.histplot(rntp, bins=50)
 plt.title("Distribution of Monthly Rent")
@@ -163,7 +233,7 @@ print()
 simRNTP = pd.Series(simRNTP)
 
 plt.figure(figsize=(10, 6))
-sb.histplot(simRNTP, bins=50)
+sns.histplot(simRNTP, bins=50)
 plt.title("Monte Carlo Simulation of Mean Monthly Rent, n = 100, trials = 10,000")
 plt.xlabel("Sample Mean of Monthly Rent")
 plt.ylabel("Count")
@@ -179,7 +249,6 @@ print(f"Simulation standard deviation: {simRNTP.std():.2f}")
 print(f"Population mean: {rntp.mean():.2f}")
 print(f"Theoretical standard error: {rntp.std() / np.sqrt(sample_size):.2f}")
 print()
-
 
 # Monthly Rent by Region
 rent_division = acs_selected.loc[rntp.index, "DIVISION_name"]
@@ -201,11 +270,40 @@ plt.ylabel("Census Division")
 plt.tight_layout()
 plt.show()
 print()
+# ========== End of Monthly Rent (RNTP) ==========
 
 
-# Household Income (HINCP)
+# ========== Household Income (HINCP) ==========
 income = acs_selected["HINCP"].dropna()
 print("===== Household Income Summary =====")
 print(income.describe())
 print()
 
+# Boxplot for Distribution of Household Income
+plt.figure(figsize=(10, 6))
+sns.boxplot(x=income)
+plt.title("Distribution of Household Income")
+
+# Histogram for Distribution of Household Income
+plt.figure(figsize=(10, 6))
+sns.histplot(income, bins=50)
+plt.title("Distribution of Household Income")
+plt.xlabel("Household Income")
+plt.ylabel("Count")
+plt.tight_layout()
+
+# Aujusted Household Income
+income_adj = np.log10(income[income > 0])
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(x=income_adj)
+plt.xlabel("log10(Household Income)")
+plt.ylabel("Count")
+
+plt.figure(figsize=(10, 6))
+sns.histplot(income_adj, bins=50)
+plt.title("Distribution of Log Household Income")
+plt.xlabel("log10(Household Income)")
+plt.ylabel("Count")
+plt.tight_layout()
+plt.show()
