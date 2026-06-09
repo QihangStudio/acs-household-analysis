@@ -307,3 +307,4 @@ plt.xlabel("log10(Household Income)")
 plt.ylabel("Count")
 plt.tight_layout()
 plt.show()
+# ========== end of Household Income (HINCP) ==========
